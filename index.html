@@ -201,7 +201,17 @@
     // Global variables
     let db, auth, userId;
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-    const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+    
+    // 從 Firebase 專案設定中取得並填入的 Firebase 設定物件
+    const firebaseConfig = {
+      apiKey: "AIzaSyDBlQzMZL5QkVhvTs3-tGF3nmhveb23Zo4",
+      authDomain: "student-tracking-app-9f136.firebaseapp.com",
+      projectId: "student-tracking-app-9f136",
+      storageBucket: "student-tracking-app-9f136.firebasestorage.app",
+      messagingSenderId: "15993048739",
+      appId: "1:15993048739:web:2fbc5919d1f748f848b916",
+      measurementId: "G-Z01NSR64CR"
+    };
 
     let currentClassId = '';
     let currentFilter = 'all'; // 'all', 'pending'
@@ -266,7 +276,13 @@
 
             // Sign in with custom token if available, otherwise anonymously
             if (typeof __initial_auth_token !== 'undefined') {
-                await signInWithCustomToken(auth, __initial_auth_token);
+                try {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } catch (error) {
+                    console.warn("Custom token sign-in failed. Attempting anonymous sign-in instead.");
+                    await signInAnonymously(auth);
+                    console.log("Successfully signed in anonymously.");
+                }
             } else {
                 await signInAnonymously(auth);
             }
