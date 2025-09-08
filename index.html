@@ -196,16 +196,8 @@
 
     // 全域變數
     let db, auth, userId;
-    const appId = "student-tracking-app-9f136";
-    const firebaseConfig = {
-      apiKey: "AIzaSyDBlQzMZL5QkVhvTs3-tGF3nmhveb23Zo4",
-      authDomain: "student-tracking-app-9f136.firebaseapp.com",
-      projectId: "student-tracking-app-9f136",
-      storageBucket: "student-tracking-app-9f136.firebasestorage.app",
-      messagingSenderId: "15993048739",
-      appId: "1:15993048739:web:2fbc5919d1f748f848b916",
-      measurementId: "G-Z01NSR64CR"
-    };
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
 
     let currentClassId = '';
     let currentFilter = 'all'; // 'all', 'pending'
@@ -258,8 +250,12 @@
                 } else {
                     console.log("No user signed in. Signing in anonymously...");
                     try {
-                        // 這裡可能會發生 'auth/configuration-not-found' 錯誤，請確保在 Firebase Console 中啟用「匿名登入」
-                        await signInAnonymously(auth);
+                        const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                        if (token) {
+                            await signInWithCustomToken(auth, token);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
                     } catch (error) {
                         console.error("Firebase authentication failed:", error);
                     }
