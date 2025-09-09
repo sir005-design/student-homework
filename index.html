@@ -112,7 +112,6 @@
         
         <div id="app-content" class="hidden">
             <div class="flex flex-col md:flex-row gap-4 mb-8">
-                <!-- 班級管理 -->
                 <div class="flex-1">
                     <h2 class="text-2xl font-semibold mb-4">班級管理</h2>
                     <div class="flex gap-2 mb-4">
@@ -122,7 +121,6 @@
                     <ul id="class-list" class="space-y-2"></ul>
                 </div>
                 
-                <!-- 學生管理 -->
                 <div class="flex-1">
                     <h2 class="text-2xl font-semibold mb-4">學生管理</h2>
                     <div class="flex gap-2 mb-4">
@@ -136,7 +134,6 @@
                 </div>
             </div>
             
-            <!-- 主要表格區塊 -->
             <div class="card overflow-x-auto">
                 <div class="flex justify-between items-center mb-4">
                     <h2 id="class-name-header" class="text-2xl font-semibold">班級學生成績</h2>
@@ -151,8 +148,7 @@
                 </div>
                 
                 <div id="table-container" class="min-w-max">
-                    <!-- 表格內容將由 JS 動態生成 -->
-                </div>
+                    </div>
                 
                 <div class="mt-4 pt-4 border-t border-gray-200 flex flex-wrap gap-2 items-center justify-end">
                     <label for="task-select" class="font-medium text-gray-700">選擇要刪除的作業:</label>
@@ -164,7 +160,6 @@
     </div>
 </div>
 
-<!-- 彈出視窗模組 (用作通用提示) -->
 <div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
     <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
         <h3 id="modal-title" class="text-xl font-bold mb-4"></h3>
@@ -177,7 +172,6 @@
     </div>
 </div>
 
-<!-- 作業註記浮動視窗 -->
 <div id="note-modal" class="hidden">
     <div class="overlay" onclick="closeNoteModal()"></div>
     <div class="note-modal">
@@ -192,7 +186,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, onSnapshot, collection, addDoc, updateDoc, deleteDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // Set Firebase Log Level
@@ -256,20 +250,6 @@
             db = getFirestore(app);
             auth = getAuth(app);
             
-            // 嘗試使用自定義令牌登入，如果失敗則改為匿名登入
-            try {
-                if (typeof __initial_auth_token !== 'undefined') {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                    console.log("Signed in with custom token.");
-                } else {
-                    await signInAnonymously(auth);
-                    console.log("Signed in anonymously.");
-                }
-            } catch (authError) {
-                console.warn("Custom token sign-in failed, falling back to anonymous sign-in.", authError);
-                await signInAnonymously(auth);
-            }
-            
             // Listen for user authentication state changes
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
@@ -283,7 +263,7 @@
                 } else {
                     userId = null;
                     userInfoEl.classList.add('hidden');
-                    googleLoginBtn.classList.remove('hidden');
+                    googleLoginBtn.classList.remove('hidden'); // Ensure button is hidden if user is not authenticated
                     appContent.classList.add('hidden');
                     console.log("User signed out.");
                 }
