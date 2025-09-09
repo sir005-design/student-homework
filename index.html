@@ -258,12 +258,6 @@
                 }
             });
             
-            // We no longer automatically sign in anonymously. The user must click the button.
-            // if (typeof __initial_auth_token !== 'undefined') {
-            //     await signInWithCustomToken(auth, __initial_auth_token);
-            // } else {
-            //     await signInAnonymously(auth);
-            // }
         } catch (error) {
             console.error("Firebase initialization failed:", error);
         }
