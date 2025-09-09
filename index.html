@@ -106,6 +106,7 @@
     <div class="card">
         <h1 class="text-4xl font-bold text-center text-gray-800 mb-2">班級加分與作業追蹤系統</h1>
         <div id="auth-container" class="text-center mb-6">
+            <button id="google-login-btn" class="btn bg-blue-500 text-white hover:bg-blue-600 hidden">使用 Google 登入</button>
             <p id="user-info" class="text-gray-500 hidden">您目前的使用者ID：<span id="user-id" class="font-mono text-sm bg-gray-100 p-1 rounded"></span></p>
         </div>
         
@@ -191,7 +192,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, onSnapshot, collection, addDoc, updateDoc, deleteDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // Set Firebase Log Level
@@ -219,6 +220,7 @@
     const userInfoEl = document.getElementById('user-info');
     const userIdEl = document.getElementById('user-id');
     const appContent = document.getElementById('app-content');
+    const googleLoginBtn = document.getElementById('google-login-btn');
     const classNameInput = document.getElementById('class-name-input');
     const addClassBtn = document.getElementById('add-class-btn');
     const classListEl = document.getElementById('class-list');
@@ -274,11 +276,14 @@
                     userId = user.uid;
                     userIdEl.textContent = userId;
                     userInfoEl.classList.remove('hidden');
+                    googleLoginBtn.classList.add('hidden');
                     appContent.classList.remove('hidden');
                     console.log("User signed in with ID:", userId);
                     startDataListeners();
                 } else {
+                    userId = null;
                     userInfoEl.classList.add('hidden');
+                    googleLoginBtn.classList.remove('hidden');
                     appContent.classList.add('hidden');
                     console.log("User signed out.");
                 }
@@ -288,6 +293,19 @@
             console.error("Firebase initialization failed:", error);
         }
     }
+
+    // Handle Google Sign-In
+    async function handleGoogleSignIn() {
+        const provider = new GoogleAuthProvider();
+        try {
+            await signInWithPopup(auth, provider);
+            console.log("Google sign-in successful.");
+        } catch (error) {
+            console.error("Google sign-in failed:", error);
+            showModal('登入錯誤', 'Google 登入失敗。請確認您的瀏覽器設定，並確保已將此網頁網域加入 Firebase 的信任網域清單。', null, null);
+        }
+    }
+
 
     // Start data listeners
     function startDataListeners() {
@@ -712,7 +730,7 @@
     async function saveTaskNote(taskName, noteContent) {
         const classDocRef = doc(db, `artifacts/${appId}/users/${userId}/classes/${currentClassId}`);
         const classSnap = await getDoc(classDocRef);
-        const classData = classSnap.data();
+        const classData = docSnap.data();
         const updatedTaskNotes = { ...classData.taskNotes, [taskName]: noteContent };
         await updateDoc(classDocRef, { taskNotes: updatedTaskNotes });
         console.log("Task note saved.");
@@ -782,6 +800,7 @@
     // Attach event listeners
     window.addEventListener('load', () => {
         initFirebase();
+        googleLoginBtn.addEventListener('click', handleGoogleSignIn);
         addClassBtn.addEventListener('click', addClass);
         addStudentBtn.addEventListener('click', addStudent);
         importStudentsBtn.addEventListener('click', importStudents);
@@ -798,7 +817,6 @@
         window.closeNoteModal = closeNoteModal;
         window.saveNoteAndClose = saveNoteAndClose;
     });
-
 </script>
 </body>
 </html>
